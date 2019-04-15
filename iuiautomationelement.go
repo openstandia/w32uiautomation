@@ -114,6 +114,10 @@ func (elem *IUIAutomationElement) SetFocus() (err error) {
 	return setFocus(elem)
 }
 
+func (elem *IUIAutomationElement) FindAll(scope TreeScope, condition *IUIAutomationCondition) (found *IUIAutomationElementArray, err error) {
+	return findAll(elem, scope, condition)
+}
+
 func (elem *IUIAutomationElement) FindFirst(scope TreeScope, condition *IUIAutomationCondition) (found *IUIAutomationElement, err error) {
 	return findFirst(elem, scope, condition)
 }
@@ -142,6 +146,10 @@ func (elem *IUIAutomationElement) Get_CurrentBoundingRectangle() (RECT, error) {
 	return get_CurrentBoundingRectangle(elem)
 }
 
+func (elem *IUIAutomationElement) Get_CurrentPropertyValue(propertyId PROPERTYID) (ole.VARIANT, error) {
+	return get_CurrentPropertyValue(elem, propertyId)
+}
+
 func setFocus(elem *IUIAutomationElement) (err error) {
 	hr, _, _ := syscall.Syscall(
 		elem.VTable().SetFocus,
@@ -152,6 +160,22 @@ func setFocus(elem *IUIAutomationElement) (err error) {
 	if hr != 0 {
 		err = ole.NewError(hr)
 		return
+	}
+	return
+}
+
+func findAll(elem *IUIAutomationElement, scope TreeScope, condition *IUIAutomationCondition) (found *IUIAutomationElementArray, err error) {
+	hr, _, _ := syscall.Syscall6(
+		elem.VTable().FindAll,
+		4,
+		uintptr(unsafe.Pointer(elem)),
+		uintptr(scope),
+		uintptr(unsafe.Pointer(condition)),
+		uintptr(unsafe.Pointer(&found)),
+		0,
+		0)
+	if hr != 0 {
+		err = ole.NewError(hr)
 	}
 	return
 }
@@ -260,4 +284,24 @@ func get_CurrentBoundingRectangle(elem *IUIAutomationElement) (rect RECT, err er
 		return
 	}
 	return
+}
+
+func get_CurrentPropertyValue(elem *IUIAutomationElement, propertyid PROPERTYID) (ole.VARIANT, error) {
+	var v ole.VARIANT
+
+	ole.VariantInit(&v)
+
+	hr, _, _ := syscall.Syscall(
+		elem.VTable().GetCurrentPropertyValue,
+		3,
+		uintptr(unsafe.Pointer(elem)),
+		uintptr(propertyid),
+		uintptr(unsafe.Pointer(&v)))
+
+	if hr != 0 {
+		err := ole.NewError(hr)
+		return v, err
+	}
+
+	return v, nil
 }

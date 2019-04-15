@@ -21,6 +21,20 @@ func WaitFindFirst(auto *IUIAutomation, elem *IUIAutomationElement, scope TreeSc
 	}
 }
 
+func WaitFindAll(auto *IUIAutomation, elem *IUIAutomationElement, scope TreeScope, condition *IUIAutomationCondition) (found *IUIAutomationElementArray, err error) {
+	for {
+		found, err = elem.FindAll(scope, condition)
+		if err != nil {
+			return nil, err
+		}
+		if found != nil {
+			return found, nil
+		}
+
+		waitChildAdded(auto, elem)
+	}
+}
+
 func waitChildAdded(auto *IUIAutomation, elem *IUIAutomationElement) error {
 	waiting := true
 	handler := NewStructureChangedEventHandler(nil)
