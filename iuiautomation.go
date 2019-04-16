@@ -4,7 +4,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/go-ole/go-ole"
+	ole "github.com/go-ole/go-ole"
 )
 
 type IUIAutomation struct {
@@ -110,6 +110,14 @@ func (auto *IUIAutomation) CreatePropertyCondition(propertyId PROPERTYID, value 
 	return createPropertyCondition(auto, propertyId, value)
 }
 
+func (auto *IUIAutomation) AddAutomationEventHandler(eventId EVENTID, element *IUIAutomationElement, scope TreeScope, cacheRequest *IUIAutomationCacheRequest, handler *IUIAutomationEventHandler) error {
+	return addAutomationEventHandler(auto, eventId, element, scope, cacheRequest, handler)
+}
+
+func (auto *IUIAutomation) RemoveAutomationEventHandler(eventId EVENTID, element *IUIAutomationElement, handler *IUIAutomationEventHandler) error {
+	return removeAutomationEventHandler(auto, eventId, element, handler)
+}
+
 func (auto *IUIAutomation) AddStructureChangedEventHandler(element *IUIAutomationElement, scope TreeScope, cacheRequest *IUIAutomationCacheRequest, handler *IUIAutomationStructureChangedEventHandler) error {
 	return addStructureChangedEventHandler(auto, element, scope, cacheRequest, handler)
 }
@@ -191,6 +199,38 @@ func createAndCondition(auto *IUIAutomation, condition1, condition2 *IUIAutomati
 		err = ole.NewError(hr)
 	}
 	return
+}
+
+func addAutomationEventHandler(auto *IUIAutomation, eventId EVENTID, element *IUIAutomationElement, scope TreeScope, cacheRequest *IUIAutomationCacheRequest, handler *IUIAutomationEventHandler) error {
+	hr, _, _ := syscall.Syscall6(
+		auto.VTable().AddAutomationEventHandler,
+		6,
+		uintptr(unsafe.Pointer(auto)),
+		uintptr(unsafe.Pointer(eventId)),
+		uintptr(unsafe.Pointer(element)),
+		uintptr(scope),
+		uintptr(unsafe.Pointer(cacheRequest)),
+		uintptr(unsafe.Pointer(handler)))
+	if hr != 0 {
+		return ole.NewError(hr)
+	}
+	return nil
+}
+
+func removeAutomationEventHandler(auto *IUIAutomation, eventId EVENTID, element *IUIAutomationElement, handler *IUIAutomationEventHandler) error {
+	hr, _, _ := syscall.Syscall6(
+		auto.VTable().RemoveAutomationEventHandler,
+		4,
+		uintptr(unsafe.Pointer(auto)),
+		uintptr(unsafe.Pointer(eventId)),
+		uintptr(unsafe.Pointer(element)),
+		uintptr(unsafe.Pointer(handler)),
+		0,
+		0)
+	if hr != 0 {
+		return ole.NewError(hr)
+	}
+	return nil
 }
 
 func addStructureChangedEventHandler(auto *IUIAutomation, element *IUIAutomationElement, scope TreeScope, cacheRequest *IUIAutomationCacheRequest, handler *IUIAutomationStructureChangedEventHandler) error {

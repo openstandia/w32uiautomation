@@ -1,15 +1,15 @@
 package w32uiautomation
-
 import (
 	"syscall"
 	"unsafe"
 
-	"github.com/go-ole/go-ole"
+	ole "github.com/go-ole/go-ole"
 )
 
 type IUIAutomationElementArray struct {
 	ole.IUnknown
 }
+
 type IUIAutomationElementArrayVtbl struct {
 	ole.IUnknownVtbl
 	Get_Length uintptr
@@ -45,3 +45,4 @@ func (v *IUIAutomationElementArray) GetElement(index int32) (element *IUIAutomat
 	}
 	return
 }
+

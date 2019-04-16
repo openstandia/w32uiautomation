@@ -5,7 +5,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/go-ole/go-ole"
+	ole "github.com/go-ole/go-ole"
 )
 
 type StructureChangeType uintptr
@@ -38,11 +38,6 @@ func (t StructureChangeType) ToString() string {
 	}
 }
 
-type IUIAutomationStructureChangedEventHandler struct {
-	ole.IUnknown
-	ref int32
-}
-
 type IUIAutomationStructureChangedEventHandlerVtbl struct {
 	ole.IUnknownVtbl
 	HandleStructureChangedEvent uintptr
@@ -52,34 +47,6 @@ var IID_IUIAutomationStructureChangedEventHandler = &ole.GUID{0xe81d1b4e, 0x11c5
 
 func (h *IUIAutomationStructureChangedEventHandler) VTable() *IUIAutomationStructureChangedEventHandlerVtbl {
 	return (*IUIAutomationStructureChangedEventHandlerVtbl)(unsafe.Pointer(h.RawVTable))
-}
-
-func structureChangedEventHandler_queryInterface(this *ole.IUnknown, iid *ole.GUID, punk **ole.IUnknown) uint32 {
-	*punk = nil
-	if ole.IsEqualGUID(iid, ole.IID_IUnknown) ||
-		ole.IsEqualGUID(iid, ole.IID_IDispatch) {
-		structureChangedEventHandler_addRef(this)
-		*punk = this
-		return ole.S_OK
-	}
-	if ole.IsEqualGUID(iid, IID_IUIAutomationStructureChangedEventHandler) {
-		structureChangedEventHandler_addRef(this)
-		*punk = this
-		return ole.S_OK
-	}
-	return ole.E_NOINTERFACE
-}
-
-func structureChangedEventHandler_addRef(this *ole.IUnknown) int32 {
-	pthis := (*IUIAutomationStructureChangedEventHandler)(unsafe.Pointer(this))
-	pthis.ref++
-	return pthis.ref
-}
-
-func structureChangedEventHandler_release(this *ole.IUnknown) int32 {
-	pthis := (*IUIAutomationStructureChangedEventHandler)(unsafe.Pointer(this))
-	pthis.ref--
-	return pthis.ref
 }
 
 func NewStructureChangedEventHandler(handlerFunc func(this *IUIAutomationStructureChangedEventHandler, sender *IUIAutomationElement, changeType StructureChangeType, runtimeId *ole.SAFEARRAY) syscall.Handle) IUIAutomationStructureChangedEventHandler {

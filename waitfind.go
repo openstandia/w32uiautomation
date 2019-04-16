@@ -4,7 +4,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/go-ole/go-ole"
+	ole "github.com/go-ole/go-ole"
 )
 
 func WaitFindFirst(auto *IUIAutomation, elem *IUIAutomationElement, scope TreeScope, condition *IUIAutomationCondition) (found *IUIAutomationElement, err error) {
@@ -61,3 +61,4 @@ func waitChildAdded(auto *IUIAutomation, elem *IUIAutomationElement) error {
 	}
 	return nil
 }
+
